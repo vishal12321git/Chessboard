@@ -1,135 +1,69 @@
 const boardContainer = document.querySelector(".board-container");
-function renderCells(){
-    
-    let row=0;
-    let col=0;
-    let color="black";
-    for(let i=0;i<64;i++){
+function renderCells() {
+    let row = 0;
+    let col = 0;
+    let color = "";
+    for (let i = 0; i < 64; i++) {
         const cell = document.createElement("div");
-        row=Math.floor(i/8);
-        col=i%8;
+        row = Math.floor(i / 8);
+        col = i % 8;
         // color=(row%2==0 ^ col%2==0)?"black":"white";
-        color=((row+col)%2==0)?"black":"white";
-        cell.classList.add("h-20","w-20","border-1");
-        cell.id=`${row}${col}`;
-        if(color=="black"){
-            cell.classList.add("bg-black");
-            color="white";
-        }else{
-            cell.classList.add("bg-white");
-            color="black";
-        }
+        color = ((row + col) % 2 == 0) ? "bg-black" : "bg-white";
+        cell.classList.add("h-20", "w-20", "border-1", `${color}`);
+        cell.id = `${row}${col}`;
         boardContainer.appendChild(cell);
     }
 }
 renderCells();
 let redCells = [];
-boardContainer.addEventListener("click",(e)=>{
+boardContainer.addEventListener("click", (e) => {
     let element = e.target;
-    console.log(element)
-    let id = element.id;
     removeRed();
-    makeRed(id);
+    makeRed(element.id);
 })
-function makeRed(id){
-    console.log(id);
+function makeRed(id) {
     let row = +id[0];
     let col = +id[1];
-    //upLeft
-    let tempRow = row;
-    let tempCol = col;
-    while(tempRow>=0 && tempCol>=0){
-        if(!redCells.includes(`${tempRow}${tempCol}`)){
-            redCells.push(`${tempRow}${tempCol}`)
+    for (let dist = 0; dist <= 7; dist++) {
+        let upLeft = ((row - dist >= 0) && (col - dist >= 0)) ? document.getElementById(`${row - dist}${col - dist}`) : "";
+        let upRight = ((row - dist >= 0) && (col + dist <= 7)) ? document.getElementById(`${row - dist}${col + dist}`) : "";
+        let downLeft = ((row + dist <= 7) && (col - dist >= 0)) ? document.getElementById(`${row + dist}${col - dist}`) : "";
+        let downRight = ((row + dist <= 7) && (col + dist <= 7)) ? document.getElementById(`${row + dist}${col + dist}`) : "";
+        if (upLeft) {
+            redCells.push(`${row - dist}${col - dist}`)
+            upLeft.classList.remove("bg-white", "bg-black");
+            upLeft.classList.add("bg-red-500");
         }
-        let cell = document.getElementById(`${tempRow--}${tempCol--}`);
-        if(cell.classList.contains("bg-black")){
-            cell.classList.remove("bg-black");
-        }else if(cell.classList.contains("bg-white")){
-            cell.classList.remove("bg-white");
+        if (upRight) {
+            redCells.push(`${row - dist}${col + dist}`)
+            upRight.classList.remove("bg-white", "bg-black");
+            upRight.classList.add("bg-red-500");
         }
-        
-        if(!cell.classList.contains("bg-red-500")){
-            cell.classList.add("bg-red-500");
+        if (downLeft) {
+            redCells.push(`${row + dist}${col - dist}`)
+            downLeft.classList.remove("bg-white", "bg-black");
+            downLeft.classList.add("bg-red-500");
         }
-        
-    }
-    
-    //upRight
-    tempRow = row;
-    tempCol = col;
-    while(tempRow>=0 && tempCol<=7){
-        if(!redCells.includes(`${tempRow}${tempCol}`)){
-            redCells.push(`${tempRow}${tempCol}`)
+        if (downRight) {
+            redCells.push(`${row + dist}${col + dist}`)
+            downRight.classList.remove("bg-white", "bg-black");
+            downRight.classList.add("bg-red-500");
         }
-        let cell = document.getElementById(`${tempRow--}${tempCol++}`);
-        if(cell.classList.contains("bg-black")){
-            cell.classList.remove("bg-black");
-        }else if(cell.classList.contains("bg-white")){
-            cell.classList.remove("bg-white");
-        }
-       
-        if(!cell.classList.contains("bg-red-500")){
-            cell.classList.add("bg-red-500");
-            
-        }
-    }
-
-    //downLeft
-    tempRow = row;
-    tempCol = col;
-    while(tempRow<=7 && tempCol>=0){
-        if(!redCells.includes(`${tempRow}${tempCol}`)){
-            redCells.push(`${tempRow}${tempCol}`)
-        }
-        let cell = document.getElementById(`${tempRow++}${tempCol--}`);
-        if(cell.classList.contains("bg-black")){
-            cell.classList.remove("bg-black");
-        }else if(cell.classList.contains("bg-white")){
-            cell.classList.remove("bg-white");
-        }
-        
-        if(!cell.classList.contains("bg-red-500")){
-            cell.classList.add("bg-red-500");
-        }
-    }
-
-    //downRight
-    tempRow = row;
-    tempCol = col;
-    while(tempRow<=7 && tempCol<=7){
-        if(!redCells.includes(`${tempRow}${tempCol}`)){
-            redCells.push(`${tempRow}${tempCol}`)
-        }
-        let cell = document.getElementById(`${tempRow++}${tempCol++}`);
-        if(cell.classList.contains("bg-black")){
-            cell.classList.remove("bg-black");
-        }else if(cell.classList.contains("bg-white")){
-            cell.classList.remove("bg-white");
-        }
-        
-        if(!cell.classList.contains("bg-red-500")){
-            cell.classList.add("bg-red-500");
-        }
-        
     }
 }
-
-function removeRed(){
-    if(redCells.length==0)return;
-    redCells.forEach((id)=>{
+function removeRed() {
+    if (redCells.length == 0) return;
+    redCells.forEach((id) => {
         const cell = document.getElementById(id);
         let row = +id[0];
         let col = +id[1];
-        if(cell.classList.contains("bg-red-500")){
-            cell.classList.remove("bg-red-500");
-        }
-        if((row+col)%2==0){
+        cell.classList.remove("bg-red-500");
+        if ((row + col) % 2 == 0) {
             cell.classList.add("bg-black");
         }
-        else{
+        else {
             cell.classList.add("bg-white");
         }
     })
-    redCells=[];
+    redCells = [];
 }
